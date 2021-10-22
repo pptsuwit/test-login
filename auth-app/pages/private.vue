@@ -177,7 +177,8 @@ export default {
         formData.append('fullname', this.fullname)
         formData.append('email', this.email)
         formData.append('telephone', this.telephone)
-        await this.$axios.post('update/' + id, formData, {
+        formData.append('id', id)
+        await this.$axios.put('update/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

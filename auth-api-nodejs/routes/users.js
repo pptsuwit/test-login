@@ -34,28 +34,24 @@ recordRoutes.get("/image/:filename", function (req, res) {
 
 recordRoutes.post("/login", authenticate);
 recordRoutes.get("/users", getAll);
-recordRoutes.post(
-  "/update/:id",
-  upload.single("file"),
-  function (req, response) {
-    let id = { _id: ObjectId(req.params.id) };
-    const newValue = {
-      $set: {
-        fullname: req.body.fullname,
-        telephone: req.body.telephone,
-        email: req.body.email,
-        avatar: req.file,
-      },
-    };
-    dbo
-      .getDB()
-      .collection("users")
-      .updateOne(id, newValue, function (err, res) {
-        if (err) throw err;
-        response.json(res);
-      });
-  }
-);
+recordRoutes.put("/update", upload.single("file"), function (req, response) {
+  let id = { _id: ObjectId(req.body.id) };
+  const newValue = {
+    $set: {
+      fullname: req.body.fullname,
+      telephone: req.body.telephone,
+      email: req.body.email,
+      avatar: req.file,
+    },
+  };
+  dbo
+    .getDB()
+    .collection("users")
+    .updateOne(id, newValue, function (err, res) {
+      if (err) throw err;
+      response.json(res);
+    });
+});
 recordRoutes.post("/register", upload.single("avatar"), (req, res, next) => {
   let filepath = "";
   // if (req.file) {
