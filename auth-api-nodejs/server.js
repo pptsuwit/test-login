@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
-const port = process.env.port || 3000;
+const port = process.env.port || 5000;
 
 const jwt = require("./_helpers/jwt");
 const errorHandler = require("./_helpers/error-handler");

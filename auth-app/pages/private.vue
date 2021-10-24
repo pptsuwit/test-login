@@ -23,7 +23,12 @@
                 <td class="has-text-centered">
                   <figure class="image is-48x48">
                     <img
-                      src="https://static01.nyt.com/images/2021/09/14/science/07CAT-STRIPES/07CAT-STRIPES-mediumSquareAt3X-v2.jpg"
+                      v-if="user.avatar"
+                      :src="`http://localhost:5000/api/image/${user.avatar}`"
+                    />
+                    <img
+                      v-else
+                      src="https://cdn0.iconfinder.com/data/icons/black-cat-emoticon-filled/64/cute_cat_kitten_face_per_avatar-02-512.png"
                     />
                   </figure>
                 </td>
@@ -151,12 +156,11 @@ export default {
       file: '',
       editId: null,
       userId: '',
-      apiUrl: this.$axios.defaults.baseURL,
     }
   },
   methods: {
     selectFile(e) {
-      this.file = e.target.files
+      this.file = e.target.files[0]
     },
     async logout() {
       await this.$auth.logout()
@@ -168,12 +172,11 @@ export default {
       this.email = user.email
       this.telephone = user.telephone
       this.userId = user._id
-      // this.file = user.file
     },
     async update(id) {
       try {
         let formData = new FormData()
-        formData.append('file', this.avatar)
+        formData.append('file', this.file)
         formData.append('fullname', this.fullname)
         formData.append('email', this.email)
         formData.append('telephone', this.telephone)

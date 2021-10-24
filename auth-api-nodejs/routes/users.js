@@ -24,10 +24,7 @@ const dbo = require("../db/conn");
 const { ObjectId } = require("bson");
 
 recordRoutes.get("/image/:filename", function (req, res) {
-  console.log(
-    path.join(__dirname, "..", "public", "uploads", req.params.filename)
-  );
-  res.send(
+  res.sendFile(
     path.join(__dirname, "..", "public", "uploads", req.params.filename)
   );
 });
@@ -36,12 +33,13 @@ recordRoutes.post("/login", authenticate);
 recordRoutes.get("/users", getAll);
 recordRoutes.put("/update", upload.single("file"), function (req, response) {
   let id = { _id: ObjectId(req.body.id) };
+
   const newValue = {
     $set: {
       fullname: req.body.fullname,
       telephone: req.body.telephone,
       email: req.body.email,
-      avatar: req.file,
+      avatar: req.file.filename || null,
     },
   };
   dbo
@@ -54,15 +52,6 @@ recordRoutes.put("/update", upload.single("file"), function (req, response) {
 });
 recordRoutes.post("/register", upload.single("avatar"), (req, res, next) => {
   let filepath = "";
-  // if (req.file) {
-  //   filepath = path.join(
-  //     __dirname,
-  //     "..",
-  //     "public",
-  //     "uploads",
-  //     req.file.filename
-  //   );
-  // }
   if (req.file) {
     filepath = req.file.filename;
   }
