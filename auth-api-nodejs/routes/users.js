@@ -1,99 +1,40 @@
 const express = require("express");
-const multer = require("multer");
-const app = express();
-const path = require("path");
-app.use(express.static(__dirname + "/public"));
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./public/uploads");
-  },
-  filename: (req, file, cb) => {
-    cb(
-      null,
-      "file-" +
-        Date.now() +
-        "." +
-        file.originalname.split(".")[file.originalname.split(".").length - 1]
-    );
-  },
-});
-const upload = multer({ storage: storage });
-const userService = require("../services/auth.service");
-const recordRoutes = express.Router();
-const dbo = require("../db/conn");
-const { ObjectId } = require("bson");
+const authServices = require("../services/auth.service");
+const userServices = require("../services/users.service");
+const routes = express.Router();
+const upload = require("../_helpers/upload");
 
-recordRoutes.get("/image/:filename", function (req, res) {
-  res.sendFile(
-    path.join(__dirname, "..", "public", "uploads", req.params.filename)
-  );
-});
+routes.post("/login", login);
+routes.post("/register", upload.single("avatar"), userServices.createUser);
 
-recordRoutes.post("/login", authenticate);
-recordRoutes.get("/users", getAll);
-recordRoutes.put("/update", upload.single("file"), function (req, response) {
-  let id = { _id: ObjectId(req.body.id) };
+routes.get("/users", getAllUser);
+routes.get("/user", userServices.getUser);
+routes.put("/user/update/", upload.single("file"), userServices.updateUser);
+routes.delete("/user/:id", userServices.deleteUser);
 
-  const newValue = {
-    $set: {
-      fullname: req.body.fullname,
-      telephone: req.body.telephone,
-      email: req.body.email,
-      avatar: req.file.filename || null,
-    },
-  };
-  dbo
-    .getDB()
-    .collection("users")
-    .updateOne(id, newValue, function (err, res) {
-      if (err) throw err;
-      response.json(res);
-    });
-});
-recordRoutes.post("/register", upload.single("avatar"), (req, res, next) => {
-  let filepath = "";
-  if (req.file) {
-    filepath = req.file.filename;
-  }
-  const user = {
-    fullname: req.body.fullname,
-    password: req.body.password,
-    avatar: filepath,
-    telephone: req.body.telephone,
-    email: req.body.email,
-  };
-  dbo
-    .getDB()
-    .collection("users")
-    .insertOne(user, function (err) {
-      if (err) throw err;
-      res.json(user);
-    });
-});
-recordRoutes.delete("/:id", function (req, response) {
-  let id = { _id: ObjectId(req.params.id) };
-  dbo
-    .getDB()
-    .collection("users")
-    .deleteOne(id, function (err, res) {
-      if (err) throw err;
-      response.json(res);
-    });
-});
+routes.get("/image/:filename", userServices.getAvatar);
 
-function getAll(req, res, next) {
-  userService
+function getAllUser(req, res, next) {
+  authServices
     .getAll()
     .then((users) => {
       res.json(users);
     })
     .catch(next);
 }
-function authenticate(req, res, next) {
-  userService
+function login(req, res, next) {
+  authServices
     .authenticate(req.body)
-    .then((user) => res.json(user))
+    .then((user) => {
+      if (user) {
+        return res.status(200).send(user);
+      } else {
+        return res
+          .status(400)
+          .send({ message: "Email or password is incorrect" });
+      }
+    })
     .catch(next);
 }
 
-module.exports = recordRoutes;
+module.exports = routes;

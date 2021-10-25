@@ -71,7 +71,7 @@ export default {
 
         this.$router.push('/private')
       } catch (e) {
-        this.error = 'Username or password is incorrect'
+        this.error = e.response.data.message
       }
     },
   },

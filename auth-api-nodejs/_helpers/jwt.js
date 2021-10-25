@@ -10,7 +10,8 @@ function jwt() {
       // public routes that don't require authentication
       "/api/login",
       "/api/register",
-      pathToRegexp("/api/image*"),
+      "/api/user",
+      pathToRegexp("/api/image/*"),
     ],
   });
 }

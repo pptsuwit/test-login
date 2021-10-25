@@ -1,5 +1,6 @@
 <template>
   <section class="section">
+    <layout-Navbar></layout-Navbar>
     <div class="container">
       <div class="columns">
         <div class="column is-4 is-offset-4">
@@ -71,12 +72,21 @@
               </div>
             </div>
 
-            <div class="control">
-              <button type="submit" class="button is-dark is-fullwidth">
+            <div class="control mt-4">
+              <button type="submit" class="button is-primary is-fullwidth">
                 Add
               </button>
             </div>
           </form>
+          <div class="control my-4">
+            <button
+              type="button"
+              @click="backToApp"
+              class="button is-dark is-fullwidth"
+            >
+              Back
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -110,15 +120,22 @@ export default {
         formData.append('email', this.email)
         formData.append('password', this.password)
         formData.append('telephone', this.telephone)
-        await this.$axios.post('register', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        this.$router.push('/private')
+        await this.$axios
+          .post('register', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then(() => {
+            this.$toast.success('User was created !')
+            this.$router.push('/private')
+          })
       } catch (e) {
         this.error = e.response.data.message
       }
+    },
+    backToApp() {
+      this.$router.push('/private')
     },
   },
 }

@@ -41,20 +41,33 @@ export default {
     'bootstrap-vue/nuxt',
     '@nuxtjs/axios',
     '@nuxtjs/auth',
+    'vue-toastification/nuxt',
   ],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
+
   axios: {
     baseURL: 'http://localhost:5000/api',
   },
   auth: {
+    redirect: {
+      login: '/login',
+      logout: '/login',
+      private: '/private',
+      home: false,
+      callback: false,
+    },
     strategies: {
       local: {
+        token: {
+          required: false,
+          type: false,
+        },
         endpoints: {
           login: { url: 'login', method: 'post', propertyName: 'token' },
-          user: { url: 'users', method: 'get', propertyName: 'data' },
           logout: false,
+          user: { url: 'user', method: 'get', propertyName: false },
         },
       },
     },

@@ -6,21 +6,19 @@ module.exports = {
   omitPassword,
 };
 
-async function authenticate({ username, password }) {
-  let db_connect = dbo.getDB();
-  // const users = await db_connect.collection("users").find({}).toArray();
-  const user = await db_connect.collection("users").findOne({
-    username: username,
+async function authenticate({ email, password }) {
+  const user = await dbo.getDB().collection("users").findOne({
+    email: email,
     password: password,
   });
 
-  if (!user) throw "Username or password is incorrect";
+  if (!user) return null;
 
   // create a jwt token that is valid for 7 days
-  const token = jwt.sign({ sub: user.id }, process.env.SECRET_JWT_TOKEN, {
+  const token = jwt.sign({ id: user._id }, process.env.SECRET_JWT_TOKEN, {
     expiresIn: "7d",
   });
-
+  // const decoded = jwt.verify(token, process.env.SECRET_JWT_TOKEN);
   return {
     ...omitPassword(user),
     token,
@@ -28,8 +26,8 @@ async function authenticate({ username, password }) {
 }
 
 async function getAll() {
-  let db_connect = dbo.getDB("test_db");
-  const users = await db_connect.collection("users").find({}).toArray();
+  let db_connect = dbo.getDB();
+  const users = await db_connect.collection("users").find().toArray();
   return users.map((u) => omitPassword(u));
 }
 
