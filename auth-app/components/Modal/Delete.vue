@@ -17,7 +17,9 @@
         <button class="button is-success" @click="removeUser(deleteUserId)">
           Save changes
         </button>
-        <button class="button" @click="showDeleteModal = false">Cancel</button>
+        <button class="button" @click="$parent.showDeleteModal = false">
+          Cancel
+        </button>
       </footer>
     </div>
   </div>
@@ -33,17 +35,17 @@ export default {
     async removeUser(id) {
       console.log(id)
       try {
-        await this.$axios.delete(id).then((response) => {
+        await this.$axios.delete('user/' + id).then((response) => {
           if (response.status === 200) {
-            alert('Delete !')
             this.$parent.getAllUsers()
-            this.$parent.showModal = false
+            this.$parent.showDeleteModal = false
 
             this.$toast('User was removed !')
           }
         })
       } catch (e) {
-        this.error = e.response.data.message
+        console.log(e)
+        this.error = e
       }
     },
   },

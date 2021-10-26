@@ -2,6 +2,7 @@ const dbo = require("../db/conn");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("bson");
 const path = require("path");
+const fs = require("fs");
 module.exports = {
   getAvatar,
   createUser,
@@ -72,23 +73,71 @@ function updateUser(req, res) {
           : null,
     },
   };
+  const fileName =
+    req.file !== undefined
+      ? req.file.filename
+      : req.body.avatar
+      ? req.body.avatar
+      : null;
+
   dbo
     .getDB()
     .collection("users")
     .updateOne(id, newValue, function (err, response) {
       if (err) return res.status(400).send({ err });
+
+      if (fileName !== null && fileName !== req.body.avatar) {
+        if (req.body.avatar) {
+          const filePath = path.join(
+            __dirname,
+            "..",
+            "public",
+            "uploads",
+            fileName
+          );
+          fs.stat(filePath, function (err) {
+            if (err) {
+              return console.error(err);
+            }
+            fs.unlink(filePath, function (err) {
+              if (err) return console.log(err);
+              console.log("remove old file");
+            });
+          });
+        }
+      }
+
       res.status(200).send({ response });
     });
 }
-function deleteUser(req, res) {
+async function deleteUser(req, res) {
   let id = { _id: ObjectId(req.params.id) };
   dbo
     .getDB()
     .collection("users")
-    .deleteOne(id, function (err, response) {
+    .findOneAndDelete(id, function (err, response) {
       if (err) return res.status(400).send({ err });
-      if (res.deleteCount == 0) {
-        res.status(400).send({ message: "User Not found" });
+      console.log(res);
+      console.log(response.value.avatar);
+      const fileName = response.value.avatar || null;
+      console.log(fileName);
+      if (fileName) {
+        const filePath = path.join(
+          __dirname,
+          "..",
+          "public",
+          "uploads",
+          fileName
+        );
+        fs.stat(filePath, function (err) {
+          if (err) {
+            return console.error(err);
+          }
+          fs.unlink(filePath, function (err) {
+            if (err) return console.log(err);
+            console.log("file deleted successfully");
+          });
+        });
       }
       res.status(200).send({ response });
     });

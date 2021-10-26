@@ -111,7 +111,9 @@
         <button class="button is-success" @click="update(user.userId)">
           Save changes
         </button>
-        <button class="button" @click="showModal = false">Cancel</button>
+        <button class="button" @click="$parent.showModal = false">
+          Cancel
+        </button>
       </footer>
     </div>
   </div>
