@@ -1,25 +1,36 @@
-const express = require("express");
-const cors = require("cors");
+require("rootpath")();
 require("dotenv").config();
+const express = require("express");
 const app = express();
-const port = process.env.port || 3000;
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const errorHandler = require("_middleware/error-handler");
 
-const jwt = require("./_helpers/jwt");
-const errorHandler = require("./_helpers/error-handler");
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cookieParser());
 
-app.use(cors());
-app.use(express.json());
-app.use(jwt());
+// allow cors requests from any origin and with credentials
+app.use(
+  cors({
+    origin: (origin, callback) => callback(null, true),
+    credentials: true,
+  })
+);
+
+// api routes
+app.use("/api", require("./users/users.controller"));
+
+// swagger docs route
+app.use("/api-docs", require("_helpers/swagger"));
+
+// global error handler
 app.use(errorHandler);
-app.use(express.static(__dirname + "/public"));
-const dbo = require("./db/conn");
 
-app.use("/api", require("./routes/users"));
-// app.use("/users", require("./users/users.controller"));
-
+// start server
+const port =
+  process.env.NODE_ENV === "production" ? process.env.PORT || 80 : 5000;
 app.listen(port, () => {
-  dbo.connectToServer((err) => {
-    if (err) console.error(err);
-  });
-  console.log(`Server is running on port: ${port}`);
+  console.log("Server listening on port " + port);
 });

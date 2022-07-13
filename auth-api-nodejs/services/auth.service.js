@@ -7,6 +7,7 @@ module.exports = {
 };
 
 async function authenticate({ username, password }) {
+  console.log(username, password);
   let db_connect = dbo.getDB();
   // const users = await db_connect.collection("users").find({}).toArray();
   const user = await db_connect.collection("users").findOne({

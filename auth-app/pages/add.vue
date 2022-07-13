@@ -110,11 +110,7 @@ export default {
         formData.append('email', this.email)
         formData.append('password', this.password)
         formData.append('telephone', this.telephone)
-        await this.$axios.post('register', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
+        await this.$axios.post('register', formData)
         this.$router.push('/private')
       } catch (e) {
         this.error = e.response.data.message
